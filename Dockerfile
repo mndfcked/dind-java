@@ -27,11 +27,18 @@ RUN apk --update add --no-cache --virtual .build-deps curl binutils \
     && mkdir /tmp/libz \
     && tar -xf /tmp/libz.tar.xz -C /tmp/libz \
     && mv /tmp/libz/usr/lib/libz.so* /usr/glibc-compat/lib \
-    && apk add --no-cache bash git \
+    && apk add --no-cache bash git openssh npm \
     && apk del --purge .build-deps \
     && rm -rf /tmp/${GLIBC_VER}.apk /tmp/gcc /tmp/gcc-libs.tar.xz /tmp/libz /tmp/libz.tar.xz /var/cache/apk/*
 
 ENV JAVA_VERSION jdk-11.0.2+7
+ENV KUBE_LATEST_VERSION="v1.13.4"
+RUN apk add --update ca-certificates \
+ && apk add --update -t deps curl \
+ && curl -L https://storage.googleapis.com/kubernetes-release/release/${KUBE_LATEST_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl \
+ && chmod +x /usr/local/bin/kubectl \
+ && apk del --purge deps \
+ && rm /var/cache/apk/*
 
 COPY slim-java* /usr/local/bin/
 
